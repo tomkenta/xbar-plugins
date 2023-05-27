@@ -13,7 +13,7 @@ def get(path)
   req.basic_auth TOGGLE_API_TOKEN, "api_token"
   res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
     http.request(req)
-  end  
+  end
   JSON.parse(res.body)
 end
 
