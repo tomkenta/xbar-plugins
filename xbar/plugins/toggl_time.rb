@@ -31,15 +31,30 @@ def post(path,body)
     JSON.parse(res.body)
 end
 
+def patch(path)
+    uri = URI("#{BASE_URL}#{path}")
+    req = Net::HTTP::Patch.new(uri)
+    req.basic_auth TOGGLE_API_TOKEN, "api_token"
+    res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(req)
+    end
+    JSON.parse(res.body)
+end
+
 
 inputArray = ARGV[0].split
 description = inputArray[0]
 project = inputArray[1]
 
-entry = get("/api/v9/me")
-if entry
-  default_workspace_id = entry['default_workspace_id']
+me = get("/api/v9/me")
+if me
+  default_workspace_id = me['default_workspace_id']
   if default_workspace_id
+    entry = get("/api/v9/me/time_entries/current")
+    if entry
+        current_entry_id = entry['id']
+        patch("/api/v9/workspaces/#{default_workspace_id}/time_entries/#{current_entry_id}/stop")
+    end
     projects = get("/api/v9/workspaces/#{default_workspace_id}/projects")
     projectHash = projects.map {|project| [project["name"],project["id"]]}.to_h
     bodyJson =
