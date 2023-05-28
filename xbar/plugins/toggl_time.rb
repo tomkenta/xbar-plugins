@@ -5,7 +5,7 @@ require 'json'
 require 'time'
 
 # your toggle API Toekn here
-TOGGLE_API_TOKEN = ""
+TOGGLE_API_TOKEN = ENV['secret']
 BASE_URL = "https://api.track.toggl.com"
 
 def get(path)
@@ -28,11 +28,13 @@ def post(path,body)
     res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
       http.request(req)
     end
-    puts JSON.parse(res.body)
+    JSON.parse(res.body)
 end
 
-description =  ARGV[0]
-project = ARGV[1]
+
+inputArray = ARGV[0].split
+description = inputArray[0]
+project = inputArray[1]
 
 entry = get("/api/v9/me")
 if entry
@@ -62,12 +64,11 @@ if entry
         # "wid": 1,
         "workspace_id":default_workspace_id,
     }.to_json
-    puts bodyJson
     post("/api/v9/workspaces/#{default_workspace_id}/time_entries",bodyJson)
-    true
+    print "true"
   else
-    false
+    print "false"
   end
 else
-  false
+  print "false"
 end
